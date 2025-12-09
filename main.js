@@ -408,14 +408,14 @@ const hotspots = [
         position: new THREE.Vector3(0, 3, 13),
         title: 'Вознесенська церква',
         text: 'Унікальна пам\'ятка високого класицизму (1795–1801). Храм має рідкісну для української архітектури центричну композицію: кругла в плані, тридільна, трьохбанна споруда, оперезана коловою галереєю. Збудована на місці старого дерев\'яного храму.',
-        image: './assets/images/church_main.jpg'
+        image: 'https://huggingface.co/Arnel13/diplome/resolve/main/church_main.jpg?download=true'
     },
     {
         id: 'bell-tower',
         position: new THREE.Vector3(27, 3, 12),
         title: 'Дзвіниця (Варваринська церква)',
         text: 'Спочатку збудована як тепла церква Св. Варвари (1753), пізніше (1895) перебудована у триярусну дзвіницю. Поєднує риси бароко та класицизму. Є пам\'яткою архітектури національного значення.',
-        image: './assets/images/bell_tower.jpg'
+        image: 'https://huggingface.co/Arnel13/diplome/resolve/main/bell_tower.jpg?download=true'
     }
 ];
 
