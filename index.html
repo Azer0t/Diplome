@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="uk">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Вознесенська церква — 3D візуалізація (WebGL)</title>
+    <meta name="description" content="Інтерактивна 3D-візуалізація Вознесенської церкви м. Ромни. WebGL / Three.js">
+    <link rel="stylesheet" href="./styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1 class="brand">Вознесенська церква</h1>
+            <nav class="nav">
+                <a href="#about">Про проєкт</a>
+                <a href="#viewer">3D Огляд</a>
+                <a href="#contacts">Контакти</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" id="about">
+            <div class="container">
+                <div class="hero-content">
+                    <h2>Інтерактивна 3D-візуалізація</h2>
+                    <p>
+                        Вознесенська церква (м. Ромни) — пам'ятка архітектури кінця XVIII — початку XIX ст.,
+                        збудована у стилі високого класицизму. Мурований храм зведено в 1795–1801 рр. на місці
+                        дерев'яного попередника; у 1895 р. добудовано дзвіницю. У радянські часи закрито, відродження —
+                        з 1996 р.
+                    </p>
+                    <ul class="facts">
+                        <li><strong>Адреса:</strong> вул. Соборна, 25, Ромни</li>
+                        <li><strong>Стиль:</strong> класицизм; круглий об'єм, три бані, кругова галерея</li>
+                        <li><strong>Дзвіниця:</strong> двоярусна, з рисами класицизму і бароко (1895)</li>
+                    </ul>
+                    <div class="hero-media">
+                        <img src="https://placehold.co/960x360/png" alt="Зображення церкви (заглушка)">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="viewer" class="viewer-section">
+            <div class="container">
+                <div class="viewer-card">
+                    <div class="viewer-3d">
+                        <div id="app" aria-label="3D сцена" role="application"></div>
+                        <div id="hotspots" aria-hidden="false"></div>
+                        <div id="loading" aria-live="polite">
+                            <div class="loader">
+                                <div class="spinner" aria-hidden="true"></div>
+                                <div class="progress">
+                                    <div class="bar" id="progress-bar" style="width:0%"></div>
+                                </div>
+                                <div class="status">
+                                    <span id="progress-text">Завантаження… 0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="toolbar" class="ui">
+                            <button id="btn-orbit" class="active" title="Orbit керування (1)">Orbit</button>
+                            <button id="btn-fps" title="Вільний політ: WASD + Drag (2)">Fly</button>
+                            <span class="divider"></span>
+                            <button id="btn-reset" title="Повернути камеру (R)">Reset</button>
+                            <button id="btn-fullscreen" title="На весь екран (F)">⛶</button>
+                            <label class="toggle" title="Тіні (S)">
+                                <input type="checkbox" id="toggle-shadows" checked>
+                                <span>Тіні</span>
+                            </label>
+                            <button id="btn-screenshot" title="Знімок екрана (P)">📸</button>
+                        </div>
+
+                        <aside id="info-panel" aria-live="polite" aria-hidden="true">
+                            <button id="info-close" aria-label="Закрити">✕</button>
+                            <div class="info-content">
+                                <h2 id="info-title">Точка</h2>
+                                <img id="info-image" alt="Ілюстрація"
+                                    style="max-height: 200px; width: 100%; object-fit: cover; border-radius: var(--radius-sm); margin-bottom: 12px; display: none;" />
+                                <p id="info-text">Опис</p>
+                            </div>
+                        </aside>
+                    </div>
+
+
+
+                    <aside id="sidebar" aria-label="Інформаційна панель">
+                        <header class="sidebar-header">
+                            <h3>Про об'єкт</h3>
+                            <p class="subtitle">м. Ромни — історична цінність</p>
+                        </header>
+                        <section class="sidebar-section">
+                            <p>
+                                3D-огляд демонструє ключові елементи зовнішньої архітектури: головний вхід, бані та
+                                дзвіницю.
+                                Обирайте точки на моделі або у списку для перегляду довідок.
+                            </p>
+                        </section>
+                        <section class="sidebar-section">
+                            <h3>Анотації</h3>
+                            <ul id="annotations-list"></ul>
+                        </section>
+                        <section class="sidebar-section">
+                            <h3>Керування</h3>
+                            <p style="font-size: 12px; color: var(--muted); margin-top: 4px;">
+                                <strong>Orbit:</strong> миша — обертання, колесо — зум<br>
+                                <strong>Fly:</strong> WASD — рух, Drag — огляд, Space/Shift — вгору/вниз<br>
+                                <strong>Гарячі клавіші:</strong> 1-Orbit, 2-Fly, R-Reset, F-Повноекран, S-Тіні, P-Знімок
+                            </p>
+                        </section>
+                        <section class="sidebar-section">
+                            <h3>Галерея</h3>
+                            <div class="gallery">
+                                <img src="./assets/images/church_main.jpg" alt="Вознесенська церква">
+                                <img src="./assets/images/bell_tower.jpg" alt="Дзвіниця">
+                            </div>
+                            <p class="sources">
+                                Джерела довідок: <a href="https://travels.in.ua/uk-ua/object/1636/voznesenska-tserkva"
+                                    target="_blank" rel="noopener">travels.in.ua</a>,
+                                <a href="https://zruchno.travel/ObjectEntity/objectentity?idCrm=66ac1d66-fe9e-a6e8-932a-5899b11db7f0&lang=ua"
+                                    target="_blank" rel="noopener">zruchno.travel</a>.
+                            </p>
+                        </section>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="lightbox" class="lightbox" aria-hidden="true">
+        <button id="lightbox-close" aria-label="Close Lightbox">✕</button>
+        <img id="lightbox-img" src="" alt="Full view">
+    </div>
+
+    <footer class="site-footer">
+        <div class="container">
+            <small>© 2025 Дипломний проєкт. WebGL/Three.js. Контакти: example@mail.com</small>
+        </div>
+    </footer>
+
+    <script type="module" src="./main.js"></script>
+</body>
+
+</html>
